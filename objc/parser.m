@@ -241,11 +241,11 @@ id regexWithString(NSString *string)
     depth = 0;
     parens = 0;
 
-	[readerMacroStack removeAllObjects];
+    [readerMacroStack removeAllObjects];
 
     int i;
     for (i = 0; i < MAXDEPTH; i++) {
-		readerMacroDepth[i] = 0;
+        readerMacroDepth[i] = 0;
     }
 
     [root release];
@@ -303,7 +303,7 @@ id regexWithString(NSString *string)
 
 - (void) addAtomCell:(id)atom
 {
-	ParserDebug(@"addAtomCell: depth = %d  atom = %@", depth, [atom stringValue]);
+    ParserDebug(@"addAtomCell: depth = %d  atom = %@", depth, [atom stringValue]);
 
     NuCell *newCell;
     if (comments) {
@@ -326,13 +326,13 @@ id regexWithString(NSString *string)
     }
     current = newCell;
     [current setCar:atom];
-    addToCar = false;	
+    addToCar = false;
 }
 
 
 - (void) openListCell
 {
-	ParserDebug(@"openListCell: depth = %d", depth);
+    ParserDebug(@"openListCell: depth = %d", depth);
 
     depth++;
     NuCell *newCell = [[[NuCell alloc] init] autorelease];
@@ -351,55 +351,55 @@ id regexWithString(NSString *string)
 
 - (void) openList
 {
-	ParserDebug(@"openList: depth = %d", depth);
+    ParserDebug(@"openList: depth = %d", depth);
 
-	while ([readerMacroStack count] > 0) {
-		ParserDebug(@"  openList: readerMacro");
-		
-		[self openListCell];
-		++readerMacroDepth[depth];
-		ParserDebug(@"  openList: ++RMD[%d] = %d", depth, readerMacroDepth[depth]);
-		[self addAtomCell:
-			[symbolTable symbolWithString:
-				[readerMacroStack objectAtIndex:0]]];
+    while ([readerMacroStack count] > 0) {
+        ParserDebug(@"  openList: readerMacro");
 
-		[readerMacroStack removeObjectAtIndex:0];
-	}
+        [self openListCell];
+        ++readerMacroDepth[depth];
+        ParserDebug(@"  openList: ++RMD[%d] = %d", depth, readerMacroDepth[depth]);
+        [self addAtomCell:
+            [symbolTable symbolWithString:
+                [readerMacroStack objectAtIndex:0]]];
 
-	[self openListCell];
+        [readerMacroStack removeObjectAtIndex:0];
+    }
+
+    [self openListCell];
 }
 
 
 - (void) addAtom:(id)atom
 {
-	ParserDebug(@"addAtom: depth = %d  atom: %@", depth, [atom stringValue]);
+    ParserDebug(@"addAtom: depth = %d  atom: %@", depth, [atom stringValue]);
 
-	while ([readerMacroStack count] > 0)	{
-		ParserDebug(@"  addAtom: readerMacro");
-		[self openListCell];
-		++readerMacroDepth[depth];
-		ParserDebug(@"  addAtom: ++RMD[%d] = %d", depth, readerMacroDepth[depth]);
-		[self addAtomCell:
-			[symbolTable symbolWithString:[readerMacroStack objectAtIndex:0]]];
+    while ([readerMacroStack count] > 0)    {
+        ParserDebug(@"  addAtom: readerMacro");
+        [self openListCell];
+        ++readerMacroDepth[depth];
+        ParserDebug(@"  addAtom: ++RMD[%d] = %d", depth, readerMacroDepth[depth]);
+        [self addAtomCell:
+            [symbolTable symbolWithString:[readerMacroStack objectAtIndex:0]]];
 
-		[readerMacroStack removeObjectAtIndex:0];
-	}
-	
-	[self addAtomCell:atom];
+        [readerMacroStack removeObjectAtIndex:0];
+    }
 
-	while (readerMacroDepth[depth] > 0) {
-		--readerMacroDepth[depth];
-		ParserDebug(@"  addAtom: --RMD[%d] = %d", depth, readerMacroDepth[depth]);
-		[self closeList];
-	}
+    [self addAtomCell:atom];
+
+    while (readerMacroDepth[depth] > 0) {
+        --readerMacroDepth[depth];
+        ParserDebug(@"  addAtom: --RMD[%d] = %d", depth, readerMacroDepth[depth]);
+        [self closeList];
+    }
 }
 
 
 - (void) closeListCell
-{	
-	ParserDebug(@"closeListCell: depth = %d", depth);
+{
+    ParserDebug(@"closeListCell: depth = %d", depth);
 
-	--depth;
+    --depth;
 
     if (addToCar) {
         [current setCar:[NSNull null]];
@@ -410,25 +410,25 @@ id regexWithString(NSString *string)
     }
     addToCar = false;
 
-	while (readerMacroDepth[depth] > 0) {
-		--readerMacroDepth[depth];
-		ParserDebug(@"  closeListCell: --RMD[%d] = %d", depth, readerMacroDepth[depth]);
-		[self closeList];
-	}
+    while (readerMacroDepth[depth] > 0) {
+        --readerMacroDepth[depth];
+        ParserDebug(@"  closeListCell: --RMD[%d] = %d", depth, readerMacroDepth[depth]);
+        [self closeList];
+    }
 }
 
 - (void) closeList
 {
-	ParserDebug(@"closeList: depth = %d", depth);
+    ParserDebug(@"closeList: depth = %d", depth);
 
-	[self closeListCell];
+    [self closeListCell];
 }
 
 
 
 -(void) openReaderMacro:(NSString*) operator
 {
-	[readerMacroStack addObject:operator];
+    [readerMacroStack addObject:operator];
 }
 
 -(void) quoteNextElement
@@ -694,22 +694,22 @@ static int nu_parse_escape_sequences(NSString *string, int i, int imax, NSMutabl
                         }
                         break;
                     }
-					case '`':
-					{
-						[self quasiquoteNextElement];
-						break;
-					}
-					case ',':
-					{
-						if ((i + 1 < imax) && ([string characterAtIndex:i+1] == '@')) {
-							[self quasiquoteSpliceNextElement];
-							i = i + 1;
-						}
-						else {
-							[self quasiquoteEvalNextElement];
-						}
-						break;
-					}
+                    case '`':
+                    {
+                        [self quasiquoteNextElement];
+                        break;
+                    }
+                    case ',':
+                    {
+                        if ((i + 1 < imax) && ([string characterAtIndex:i+1] == '@')) {
+                            [self quasiquoteSpliceNextElement];
+                            i = i + 1;
+                        }
+                        else {
+                            [self quasiquoteEvalNextElement];
+                        }
+                        break;
+                    }
                     case '\n':                    // end of line
                         column = 0;
                         linenum++;
@@ -979,10 +979,10 @@ static int nu_parse_escape_sequences(NSString *string, int i, int imax, NSMutabl
     char* homedir = getenv("HOME");
     char  history_file[FILENAME_MAX];
     int   valid_history_file = 0;
-    
+
     if (homedir) // Not likely, but could be NULL
     {
-        // Since we're getting something from the shell environment, 
+        // Since we're getting something from the shell environment,
         // try to be safe about it
         int n = snprintf(history_file, FILENAME_MAX, "%s/.nush_history", homedir);
         if (n <=  FILENAME_MAX)
@@ -995,15 +995,15 @@ static int nu_parse_escape_sequences(NSString *string, int i, int imax, NSMutabl
     do {
         NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
         char *prompt = ([self incomplete] ? "- " : "% ");
-		#ifdef IPHONENOREADLINE
-		puts(prompt);
-		char line[1024]; // careful
-		int count = gets(line);
-		#else
+        #ifdef IPHONENOREADLINE
+        puts(prompt);
+        char line[1024]; // careful
+        int count = gets(line);
+        #else
         char *line = readline(prompt);
         if (line && *line && strcmp(line, "quit"))
             add_history (line);
-		#endif
+        #endif
         if(!line || !strcmp(line, "quit")) {
             break;
         }
