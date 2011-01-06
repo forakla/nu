@@ -869,6 +869,10 @@ id get_nu_value_from_objc_value(void *objc_value, const char *typeString)
                 [cursor setCar:[NSNumber numberWithDouble:size->height]];
                 return list;
             }
+            else if (!strcmp(typeString, "{__CFString=}")) {
+                id result = (NSString *)objc_value;
+                return result ? result : (id)[NSNull null];
+            }
             else {
                 NSLog(@"UNIMPLEMENTED: can't wrap structure of type %s", typeString);
             }
